@@ -32,6 +32,7 @@ type NLPResponse struct {
     Intent string `json:"intent"`
     Confidence float32 `json:"confidence"`
     Entities map[string]string `json:"entities"`
+    FulfillmentMessages []*dialogflowpb.Intent_Message
 }
 
 var dp DialogflowProcessor
@@ -81,6 +82,7 @@ func (dp *DialogflowProcessor) processNLP(rawMessage string, username string) (r
     if queryResult.Intent != nil {
         r.Intent = queryResult.Intent.DisplayName
         r.Confidence = float32(queryResult.IntentDetectionConfidence)
+        r.FulfillmentMessages = queryResult.FulfillmentMessages
     }
     r.Entities = make(map[string]string)
     params := queryResult.Parameters.GetFields()
