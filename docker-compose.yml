@@ -5,7 +5,7 @@ services:
   container_name: api
 #   build: ./
   ports:
-    - "8000:8000"
+    - "8888:8888"
   image: golang:1.16.3-alpine
   volumes:
    - .:/go/src/api # mount current directory to the directory /go/src/api (dir in docker container)

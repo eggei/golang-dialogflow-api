@@ -135,6 +135,13 @@ func extractDialogflowEntities(p *structpb.Value) (extractedEntity string) {
 }
 
 func intentRequestHandler(w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Access-Control-Allow-Origin", "*")
+    w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+    w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+
+    // log request
+    log.Printf("\n %s request from %s", r.Method, r.Host) 
+
     if r.Method != "POST" {
         http.Error(w, "Method is not supported.", http.StatusNotFound)
         return
@@ -172,10 +179,10 @@ func main() {
         "en", 
         "America/Boston",
     )
-    http.HandleFunc("/", intentRequestHandler)
+    http.HandleFunc("/api/get-intent", intentRequestHandler)
 
-    fmt.Printf("\n >>>>>>> Starting server at port 8000\n\n")
-    if err := http.ListenAndServe(":8000", nil); err != nil {
+    fmt.Printf("\n >>>>>>> Starting server at port 8888\n\n")
+    if err := http.ListenAndServe(":8888", nil); err != nil {
         log.Fatal(err)
     }
 }
