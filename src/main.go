@@ -32,7 +32,7 @@ type NLPResponse struct {
     Intent string `json:"intent"`
     Confidence float32 `json:"confidence"`
     Entities map[string]string `json:"entities"`
-    FulfillmentMessages []*dialogflowpb.Intent_Message
+    FulfillmentMessages []*dialogflowpb.Intent_Message `json:"fulfillmentMessages"`
 }
 
 var dp DialogflowProcessor
@@ -51,7 +51,7 @@ func (dp *DialogflowProcessor) init (a ...string) (err error) {
         option.WithCredentialsFile(dp.authJSONFilePath),
     )
     if err != nil {
-        log.Fatal("Error in auth with Dialogflow")
+        log.Println("Error in auth with Dialogflow")
     }
     dp.sessionClient = sessionClient
     return
@@ -141,7 +141,7 @@ func intentRequestHandler(w http.ResponseWriter, r *http.Request) {
     w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 
     // log request
-    log.Printf("\n %s request from %s", r.Method, r.Host) 
+    log.Printf("--- %s request from %s", r.Method, r.Host) 
 
     if r.Method != "POST" {
         http.Error(w, "Method is not supported.", http.StatusNotFound)
@@ -156,17 +156,17 @@ func intentRequestHandler(w http.ResponseWriter, r *http.Request) {
                 http.StatusInternalServerError,
             )
         }
-        type inboundMessage struct {
-            Message string
+        type userQuestion struct {
+            Question string `json:"question"`
         }
-        var m inboundMessage
+        var m userQuestion
         err = json.Unmarshal(body, &m)
         if err != nil {
             panic(err)
         }
         
         // Use NLP
-        response := dp.processNLP(m.Message, "testUser")
+        response := dp.processNLP(m.Question, r.RemoteAddr) // use IP address as session id
         fmt.Printf("%#v", response)
         w.Header().Set("Content-Type", "application/json")
         json.NewEncoder(w).Encode(response)
@@ -174,12 +174,18 @@ func intentRequestHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+    projectID := "chatfolio-q9qs"
+    authFile := "chatfolio-q9qs-b17009ca2aa1.json" 
     dp.init(
-        "chatfolio-q9qs", 
-        "chatfolio-q9qs-b17009ca2aa1.json", 
+        projectID, 
+        authFile, 
         "en", 
         "America/Boston",
     )
+
+    http.HandleFunc("/", func (w http.ResponseWriter, r *http.Request) { 
+            json.NewEncoder(w).Encode("Healthy")  
+        }) 
     http.HandleFunc("/api/get-intent", intentRequestHandler)
 
     fmt.Printf("\n >>>>>>> Starting server at port 8888\n\n")

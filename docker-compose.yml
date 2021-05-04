@@ -10,7 +10,7 @@ services:
   volumes:
    - .:/go/src/api # mount current directory to the directory /go/src/api (dir in docker container)
   working_dir: /go/src/api
-  command: go run src/main.go
+  command: go run ./src/
 #   links:
 #     - redis
 #  redis:
