@@ -75,7 +75,7 @@ func (dp *DialogflowProcessor) processNLP(rawMessage string, username string) (r
     }
     response, err := dp.sessionClient.DetectIntent(dp.ctx, &request)
     if err != nil {
-        log.Fatalf("Error in communication with Dialogflow %s", err.Error())
+        log.Printf("Error in communication with Dialogflow %s", err.Error())
         return
     }
     queryResult := response.GetQueryResult()
@@ -135,8 +135,9 @@ func extractDialogflowEntities(p *structpb.Value) (extractedEntity string) {
 }
 
 func intentRequestHandler(w http.ResponseWriter, r *http.Request) {
+    // TODO: * is not a good implementation of enabling CORS
     w.Header().Set("Access-Control-Allow-Origin", "*")
-    w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+    w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
     w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 
     // log request
@@ -174,8 +175,8 @@ func intentRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
     dp.init(
-        "whoisege-qdwh", 
-        "whoisege-qdwh-8734f579550e.json", 
+        "chatfolio-q9qs", 
+        "chatfolio-q9qs-b17009ca2aa1.json", 
         "en", 
         "America/Boston",
     )
